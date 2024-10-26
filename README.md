@@ -1,11 +1,13 @@
-# DoLL - Deploy DoL locally with one click
+# DoLD
+
+Download DoL and other variants with one click
 
 > [!CAUTION]
 > WIP. Use at your own risk.
 
 ## Description
 
-This script helps you deploy [DoL](https://degreesoflewdity.miraheze.org/) locally.
+This script helps you download [DoL](https://degreesoflewdity.miraheze.org/) automaticly.
 
 ## Usage
 
@@ -16,7 +18,7 @@ git clone https://github.com/AkinaAcct/DoLL.git
 bash DoLL/DoLL.sh
 ```
 
-Then follow the script's prompts to complete the deployment.
+Then follow the script's prompts to complete the download.
 
 ## Credits
 
