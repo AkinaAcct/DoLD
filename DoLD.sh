@@ -6,7 +6,7 @@ RED="\033[1;31m"    # RED
 YELLOW="\033[1;33m" # YELLOW
 BLUE="\033[40;34m"  # BLUE
 RESET="\033[0m"     # RESET
-DEPENDENCIES="curl jq getopt unzip"
+DEPENDENCIES="curl jq unzip"
 WORKDIR="$(mktemp -d)"
 # formatted print
 msg_info() {
@@ -29,6 +29,14 @@ fi
 if [[ "$(getopt -T >/dev/null 2>&1;echo ${?})" -ne 4 ]];then
     msg_warn "Not enhanced getopt. Some operations may result in errors."
 fi
+# Check deps 
+for i in $DEPENDENCIES; do
+    if ! (command -v ${i} >/dev/null 2>&1);then
+        msg_fatal "Required dependencies is missing. Missing dependency: ${i}"
+    else
+        msg_info "${i} is installed."
+    fi
+done
 
 VARIANTS=([1]DoL [2]DoL-Lyra [3]DoLPlus) # Supported variants
 print_variants(){
@@ -48,10 +56,11 @@ Required parameters:
 
 Optional parameters:
 -V [STRING],        specify the variant's version to be deployed.
-    "
+-p,--prefix,        specify the path where DoL will be installed. Default path is \${HOME}/DOL
+"
 }
 
-ARGS=$(getopt -o hlv:V: --long help,list,variant:,version: -n "$0" -- "$@")
+ARGS=$(getopt -o hlp:v:V: --long help,list,prefix,variant:,version: -n "$0" -- "$@")
 if [[ ${#} -eq 0 ]]; then
     print_help
     exit 0
@@ -88,6 +97,11 @@ while true; do
             msg_info "Version selected: ${VER}"
             shift 2
             ;;
+        -p|--prefix)
+            IPREFIX="${2}"
+            msg_info "Prefix specified. IPREFIX: ${IPREFIX}"
+            shift 2
+            ;;
         --)
             EXTRAARG="${2}"
             break
@@ -101,12 +115,19 @@ done
 if [[ "${v}" != "true" ]]; then
     msg_fatal "The -v/--variant parameter is required."
 fi
+if [[ -z ${IPREFIX} ]]; then
+    IPREFIX="${HOME}/DOL"
+fi
+mkdir -p "${IPREFIX}/${VARIANT}"
 
 case ${VARIANT} in
     DOL)
         source DOL/DOL.sh
         ;;
 esac
+msg_info "Now cleaning tmp files..."
+rm -rf ${WORKDIR}
+msg_info "Done."
 #if [[ "${v}" != "true"  ]] || [[ "${V}" != "true" ]]; then
 #    msg_fatal "-v/--variant and -V/--version must be used simultaneously!"
 #fi
