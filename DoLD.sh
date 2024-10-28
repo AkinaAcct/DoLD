@@ -29,17 +29,10 @@ fi
 if [[ "$(getopt -T >/dev/null 2>&1;echo ${?})" -ne 4 ]];then
     msg_warn "Not enhanced getopt. Some operations may result in errors."
 fi
-# Check deps 
-for i in $DEPENDENCIES; do
-    if ! (command -v ${i} >/dev/null 2>&1);then
-        msg_fatal "Required dependencies is missing. Missing dependency: ${i}"
-    else
-        msg_info "${i} is installed."
-    fi
-done
 
 VARIANTS=([1]DoL [2]DoL-Lyra [3]DoLPlus) # Supported variants
 print_variants(){
+    msg_info "Supported variants:"
     for i in "${VARIANTS[@]}"; do
         printf "${BLUE}%s ${RESET}" "$i"
     done
@@ -114,19 +107,35 @@ while true; do
 done
 if [[ "${v}" != "true" ]]; then
     msg_fatal "The -v/--variant parameter is required."
+    exit 1
 fi
 if [[ -z ${IPREFIX} ]]; then
     IPREFIX="${HOME}/DOL"
 fi
-mkdir -p "${IPREFIX}/${VARIANT}"
+# Check deps 
+for i in $DEPENDENCIES; do
+    if ! (command -v ${i} >/dev/null 2>&1);then
+        msg_fatal "Required dependencies is missing. Missing dependency: ${i}"
+    else
+        msg_info "${i} is installed."
+    fi
+done
 
 case ${VARIANT} in
     DOL)
         source DOL/DOL.sh
         ;;
+    DOLLYRA)
+        source DOLLYRA/DOLLYRA.sh
+        ;;
+    DOLPLUS)
+        msg_err "Developing..."
+        exit 1
+        source DOLPLUS/DOLPLUS.sh
+        ;;
 esac
 msg_info "Now cleaning tmp files..."
-rm -rf ${WORKDIR}
+rm -rf "${WORKDIR}"
 msg_info "Done."
 #if [[ "${v}" != "true"  ]] || [[ "${V}" != "true" ]]; then
 #    msg_fatal "-v/--variant and -V/--version must be used simultaneously!"
