@@ -10,7 +10,6 @@ else
     msg_info "Done."
 fi
 msg_info "Unzipping..."
-mkdir -p "${IPREFIX}/DoL"
 if ! (unzip ${WORKDIR}/dol.zip -d "${IPREFIX}/DoL"); then
     msg_fatal "Unzip failed. Aborted."
 else

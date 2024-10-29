@@ -90,6 +90,8 @@ while true; do
         -V|--version)
             VER="${2}"
             msg_info "Version selected: ${VER}"
+            msg_err "Unfinished feature: version selection."
+            exit 1
             shift 2
             ;;
         -p|--prefix)
@@ -127,12 +129,15 @@ fi
 
 case ${VARIANT} in
     DOL)
+        mkdir -p "${IPREFIX}/DoL"
         source DOL/DOL.sh
         ;;
     DOLLYRA)
+        mkdir -p "${IPREFIX}/DoL-Lyra"
         source DOLLYRA/DOLLYRA.sh
         ;;
     DOLPLUS)
+        mkdir -p "${IPREFIX}/DoL-Plus"
         source DOLPLUS/DOLPLUS.sh
         ;;
 esac
