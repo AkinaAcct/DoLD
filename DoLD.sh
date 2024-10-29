@@ -10,21 +10,24 @@ DEPENDENCIES="curl jq unzip"
 WORKDIR="$(mktemp -d)"
 # formatted print
 msg_info() {
-    printf "${BLUE}[INFO]: ${1}${RESET}\n"
+    printf "${BLUE}%s${RESET}\n" "[INFO]: ${1}"
 }
 msg_warn() {
-    printf "${YELLOW}[WARN]: ${1}${RESET}\n"
+    printf "${YELLOW}%s${RESET}\n" "[WARN]: ${1}"
 }
 msg_err() {
-    printf "${RED}[ERROR]: ${1}${RESET}\n"
+    printf "${RED}%s${RESET}\n" "[ERROR]: ${1}"
 }
 msg_fatal() {
-    printf "${RED}[FATAL]: ${1}${RESET}\n"
+    printf "${RED}%s${RESET}\n" "[FATAL]: ${1}"
+    exit 1
+}
+msg_cus(){
+    printf "${!1}%s${RESET}\n" "[${2}]: ${3}"
 }
 # Check getopt
 if ! (command -v getopt >/dev/null 2>&1); then
     msg_fatal "getopt is NOT installed! Install it first!"
-    exit 1
 fi
 if [[ "$(getopt -T >/dev/null 2>&1;echo ${?})" -ne 4 ]];then
     msg_warn "Not enhanced getopt. Some operations may result in errors."
@@ -74,7 +77,6 @@ while true; do
         -v|--variant)
             if [[ ! "${2}" =~ ^[1-3]$ ]]; then
                 msg_fatal "Incorrect input: ${2}"
-                exit 1
             fi
             case "${2}" in
                 1) VARIANT=DOL;;
@@ -82,7 +84,7 @@ while true; do
                 3) VARIANT=DOLPLUS;;
             esac
             v=true
-            msg_info "Variant selected: ${VARIANT}"
+            msg_info "Variant selected: ${2}, ${VARIANT}"
             shift 2
             ;;
         -V|--version)
@@ -100,26 +102,28 @@ while true; do
             break
             ;;
         *)
-            echo "wrong"
-            exit 1
+            msg_fatal "Unexpected behaviour."
             ;;
     esac
 done
 if [[ "${v}" != "true" ]]; then
     msg_fatal "The -v/--variant parameter is required."
-    exit 1
 fi
 if [[ -z ${IPREFIX} ]]; then
     IPREFIX="${HOME}/DOL"
 fi
 # Check deps 
-for i in $DEPENDENCIES; do
+for i in ${DEPENDENCIES}; do
     if ! (command -v ${i} >/dev/null 2>&1);then
-        msg_fatal "Required dependencies is missing. Missing dependency: ${i}"
+        MISSING+=("${i}")
+        msg_cus RED DEPS "Required dependencies is missing. Missing dependency: ${i}"
     else
-        msg_info "${i} is installed."
+        msg_cus BLUE DEPS "${i} is installed."
     fi
 done
+if [[ -n ${MISSING[*]} ]]; then
+    msg_fatal "Missing ${#MISSING[*]} dependency(ies). Install ${MISSING[*]} first."
+fi
 
 case ${VARIANT} in
     DOL)
@@ -129,8 +133,6 @@ case ${VARIANT} in
         source DOLLYRA/DOLLYRA.sh
         ;;
     DOLPLUS)
-        msg_err "Developing..."
-        exit 1
         source DOLPLUS/DOLPLUS.sh
         ;;
 esac
