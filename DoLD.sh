@@ -2,6 +2,11 @@
 # By Akina
 # WARN: WIP
 
+if [[ "${DOLDDEBUG}" == "true" ]]; then
+    set -x
+    printf "\033[1;33m%s\033[0m" "[WARN]: ENV DOLDDEBUG=true. DEBUG mode is on."
+fi
+
 RED="\033[1;31m"    # RED
 YELLOW="\033[1;33m" # YELLOW
 BLUE="\033[40;34m"  # BLUE
@@ -44,19 +49,19 @@ print_help(){
     printf "${BLUE}%s${RESET}\n" "
 DoL Local - Ver. 0.0.1
 
--h,                 print this help page and exit.
--l,                 print supported variants and exit.
+-h, --help,                                  print this help page and exit.
+-l, --list,                                  print supported variants and exit.
 
 Required parameters:
--v [INT],           specify the variant to be deployed. Get the variant number from the -l parameter and enter it here.
+-v [VARIANT], --variant [VARIANT],           specify the variant to be deployed. Get the variant number from the -l parameter and enter it here.
 
 Optional parameters:
--V [STRING],        specify the variant's version to be deployed.
--p,--prefix,        specify the path where DoL will be installed. Default path is \${HOME}/DOL
+-V [STRING], --version [STRING],             specify the variant's version to be deployed.
+-p PATH/TO/FOLDER,--prefix PATH/TO/FOLDER,   specify the path where DoL will be installed. Default path is \${HOME}/DOL
 "
 }
 
-ARGS=$(getopt -o hlp:v:V: --long help,list,prefix,variant:,version: -n "$0" -- "$@")
+ARGS=$(getopt -o hlp:v:V: --long help,list,prefix:,variant:,version: -n "$0" -- "$@")
 if [[ ${#} -eq 0 ]]; then
     print_help
     exit 0
